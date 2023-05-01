@@ -3,17 +3,21 @@ defmodule RumblWeb.VideoController do
 
   alias Rumbl.Multimedia
   alias Rumbl.Multimedia.Video
+  alias Rumbl.Accounts.User
 
+  @spec index(Plug.Conn.t, Plug.Conn.params, User.t) :: Plug.Conn.t
   def index(conn, _params, current_user) do
     videos = Multimedia.list_user_videos(current_user)
     render(conn, "index.html", videos: videos)
   end
 
+  @spec new(Plug.Conn.t, Plug.Conn.params, User.t) :: Plug.Conn.t
   def new(conn, _params, _current_user) do
     changeset = Multimedia.change_video(%Video{})
     render(conn, "new.html", changeset: changeset)
   end
 
+  @spec create(Plug.Conn.t, map, User.t) :: Plug.Conn.t
   def create(conn, %{"video" => video_params}, current_user) do
     case Multimedia.create_video(current_user, video_params) do
       {:ok, video} ->
@@ -26,17 +30,20 @@ defmodule RumblWeb.VideoController do
     end
   end
 
+  @spec show(Plug.Conn.t, map, User.t) :: Plug.Conn.t
   def show(conn, %{"id" => id}, current_user) do
     video = Multimedia.get_user_video!(current_user, id)
     render(conn, "show.html", video: video)
   end
 
+  @spec edit(Plug.Conn.t, map, User.t) :: Plug.Conn.t
   def edit(conn, %{"id" => id}, current_user) do
     video = Multimedia.get_user_video!(current_user, id)
     changeset = Multimedia.change_video(video)
     render(conn, "edit.html", video: video, changeset: changeset)
   end
 
+  @spec update(Plug.Conn.t, map, User.t) :: Plug.Conn.t
   def update(conn, %{"id" => id, "video" => video_params}, current_user) do
     video = Multimedia.get_user_video!(current_user, id)
 
@@ -51,6 +58,7 @@ defmodule RumblWeb.VideoController do
     end
   end
 
+  @spec delete(Plug.Conn.t, map, User.t) :: Plug.Conn.t
   def delete(conn, %{"id" => id}, current_user) do
     video = Multimedia.get_user_video!(current_user, id)
     {:ok, _video} = Multimedia.delete_video(video)
@@ -60,6 +68,7 @@ defmodule RumblWeb.VideoController do
     |> redirect(to: Routes.video_path(conn, :index))
   end
 
+  @spec action(Plug.Conn.t, Plug.Conn.params) :: no_return
   def action(conn, _) do
     args = [conn, conn.params, conn.assigns.current_user]
     apply(__MODULE__, action_name(conn), args)
@@ -67,6 +76,7 @@ defmodule RumblWeb.VideoController do
 
   plug :load_categories when action in [:new, :create, :edit, :update]
 
+  @spec load_categories(Plug.Conn.t, map) :: no_return
   defp load_categories(conn, _) do
     assign(conn, :categories, Multimedia.list_alphabetical_categories())
   end

@@ -2,6 +2,16 @@ defmodule Rumbl.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
+   @type t :: %__MODULE__{
+    id: integer,
+    name: String.t(),
+    username: String.t(),
+    password: String.t(),
+    password_hash: String.t(),
+    inserted_at: String.t(),
+    updated_at: String.t()
+  }
+
   schema "users" do
     field :name, :string
     field :username, :string
@@ -11,6 +21,7 @@ defmodule Rumbl.Accounts.User do
     timestamps()
   end
 
+  @spec changeset(User.t, map) :: Changeset.t
   def changeset(user, attrs) do
     user
     |> cast(attrs, [:name, :username])
@@ -19,6 +30,7 @@ defmodule Rumbl.Accounts.User do
     |> unique_constraint(:username)
   end
 
+  @spec registration_changeset(User.t, map) :: Changeset.t
   def registration_changeset(user, params) do
     user
     |> changeset(params)
@@ -28,6 +40,7 @@ defmodule Rumbl.Accounts.User do
     |> put_pass_hash()
   end
 
+  @spec put_pass_hash(Changeset.t) :: Changeset.t
   defp put_pass_hash(changeset) do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{password: pass}} ->

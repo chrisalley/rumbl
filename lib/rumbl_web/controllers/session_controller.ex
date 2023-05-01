@@ -1,10 +1,12 @@
 defmodule RumblWeb.SessionController do
   use RumblWeb, :controller
 
+  @spec new(Plug.Conn.t, nil) :: Plug.Conn.t
   def new(conn, _) do
     render(conn, "new.html")
   end
 
+  @spec create(Plug.Conn, map) :: no_return
   def create(conn, %{"session" => %{"username" => username, "password" => pass}}) do
     case Rumbl.Accounts.authenticate_by_username_and_pass(username, pass) do
       {:ok, user} ->
@@ -19,6 +21,7 @@ defmodule RumblWeb.SessionController do
     end
   end
 
+  @spec delete(Plug.Conn.t, nil) :: Plug.Conn.t
   def delete(conn, _) do
     conn
     |> RumblWeb.Auth.logout()
